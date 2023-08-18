@@ -53,6 +53,9 @@ To install the **pre-commit hooks**, with the environment activated and in the p
 pre-commit install
 ```
 
+### Setting up a netrc File
+You will need a netrc file containing your NASA Earthdata Login credentials in order to execute this tutorial. If you want to manually create your own netrc file, download the [.netrc file template](https://git.earthdata.nasa.gov/projects/LPDUR/repos/daac_data_download_python/browse/.netrc), add your credentials, and save to your home directory. If you want to use the python script to set up a netrc file but do not need to download any files, copy/clone/download the [EarthdataLoginSetup.py](https://git.earthdata.nasa.gov/projects/LPDUR/repos/daac_data_download_python/browse/EarthdataLoginSetup.py) script and execute it: `python EarthdataLoginSetup.py`. You will be prompted for your NASA Earthdata Login Username and Password, hit enter once you have submitted your credentials.
+
 ## Update the environment
 
 If you need to update the environment installing a new package, you simply do it with:
