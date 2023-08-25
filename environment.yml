@@ -1,22 +1,42 @@
+name: hls_data_project
 channels:
   - conda-forge
 dependencies:
+  - _libgcc_mutex=0.1
+  - _openmp_mutex=4.5
   - affine=2.4.0
   - aiobotocore=2.5.0
   - aiohttp=3.8.4
   - aioitertools=0.11.0
   - aiosignal=1.3.1
   - alembic=1.11.1
+  - alsa-lib=1.2.9
   - anyio=3.7.0
+  - aom=3.5.0
   - appdirs=1.4.4
   - argon2-cffi=21.3.0
   - argon2-cffi-bindings=21.2.0
+  - arrow=1.2.3
   - asttokens=2.2.1
   - async-lru=2.0.2
   - async-timeout=4.0.2
   - async_generator=1.10
+  - attr=2.5.1
   - attrs=23.1.0
   - autopep8=2.0.2
+  - aws-c-auth=0.6.28
+  - aws-c-cal=0.5.27
+  - aws-c-common=0.8.23
+  - aws-c-compression=0.2.17
+  - aws-c-event-stream=0.3.0
+  - aws-c-http=0.7.10
+  - aws-c-io=0.13.26
+  - aws-c-mqtt=0.8.13
+  - aws-c-s3=0.3.11
+  - aws-c-sdkutils=0.1.11
+  - aws-checksums=0.1.16
+  - aws-crt-cpp=0.20.2
+  - aws-sdk-cpp=1.10.57
   - babel=2.12.1
   - backcall=0.2.0
   - backports=1.0
@@ -33,9 +53,11 @@ dependencies:
   - brotli=1.0.9
   - brotli-bin=1.0.9
   - brotlipy=0.7.0
+  - brunsli=0.1
   - bzip2=1.0.8
   - c-ares=1.19.1
-  - ca-certificates=2023.5.7
+  - c-blosc2=2.10.0
+  - ca-certificates=2023.7.22
   - cachecontrol=0.13.0
   - cachecontrol-with-filecache=0.13.0
   - cached-property=1.5.2
@@ -44,12 +66,13 @@ dependencies:
   - cachy=0.3.0
   - cairo=1.16.0
   - cartopy=0.21.1
-  - certifi=2023.5.7
+  - certifi=2023.7.22
   - certipy=0.1.3
   - cffi=1.15.1
   - cfgv=3.3.1
   - cfitsio=4.2.0
   - cftime=1.6.2
+  - charls=2.4.2
   - charset-normalizer=3.1.0
   - click=8.1.3
   - click-default-group=1.2.2
@@ -58,6 +81,8 @@ dependencies:
   - clikit=0.6.2
   - cloudpickle=2.2.1
   - color-operations=0.1.1
+  - colorama=0.4.6
+  - colorcet=3.0.1
   - comm=0.1.3
   - conda-lock=2.1.0
   - configurable-http-proxy=4.5.4
@@ -71,6 +96,9 @@ dependencies:
   - dask=2023.6.1
   - dask-cloudprovider=2022.10.0
   - dask-core=2023.6.1
+  - datashader=0.15.2
+  - datashape=0.5.4
+  - dav1d=1.2.1
   - dbus=1.13.6
   - debugpy=1.6.7
   - decorator=5.1.1
@@ -95,6 +123,7 @@ dependencies:
   - fonts-conda-ecosystem=1
   - fonts-conda-forge=1
   - fonttools=4.40.0
+  - fqdn=1.5.1
   - freetype=2.12.1
   - freexl=1.0.6
   - frozenlist=1.3.3
@@ -105,6 +134,8 @@ dependencies:
   - geopandas-base=0.13.2
   - geos=3.11.2
   - geotiff=1.7.1
+  - geoviews=1.10.1
+  - geoviews-core=1.10.1
   - gettext=0.21.1
   - gflags=2.2.2
   - giflib=5.2.1
@@ -136,15 +167,19 @@ dependencies:
   - harfbuzz=7.3.0
   - hdf4=4.2.15
   - hdf5=1.14.1
+  - holoviews=1.17.1
   - hpack=4.0.0
   - html5lib=1.1
   - httpcore=0.17.2
   - httplib2=0.22.0
   - httpx=0.24.1
+  - hvplot=0.8.4
   - hyperframe=6.0.1
   - icu=72.1
   - identify=2.5.24
   - idna=3.4
+  - imagecodecs=2023.8.12
+  - imageio=2.31.1
   - importlib-metadata=6.7.0
   - importlib-resources=5.12.0
   - importlib_metadata=6.7.0
@@ -153,16 +188,18 @@ dependencies:
   - ipython=8.14.0
   - ipython_genutils=0.2.0
   - ipywidgets=8.0.6
+  - isoduration=20.11.0
   - isort=5.12.0
   - jaraco.classes=3.2.3
   - jedi=0.18.2
   - jeepney=0.8.0
   - jinja2=3.1.2
-  - jmespath=1.0.1
   - joblib=1.3.0
   - json-c=0.16
   - json5=0.9.5
+  - jsonpointer=2.0
   - jsonschema=4.17.3
+  - jsonschema-with-format-nongpl=4.17.3
   - jupyter-lsp=2.2.0
   - jupyter_client=8.3.0
   - jupyter_core=5.3.1
@@ -176,25 +213,32 @@ dependencies:
   - jupyterlab_pygments=0.2.2
   - jupyterlab_server=2.23.0
   - jupyterlab_widgets=3.0.7
+  - jxrlib=1.1
   - kealib=1.5.1
   - keyring=24.2.0
+  - keyutils=1.6.1
   - kiwisolver=1.4.4
   - krb5=1.20.1
   - lame=3.100
+  - lazy_loader=0.3
   - lcms2=2.15
   - ld_impl_linux-64=2.40
   - lerc=4.0.0
+  - libabseil=20230125.3
   - libaec=1.0.6
   - libarchive=3.6.2
   - libarrow=12.0.1
+  - libavif=0.11.1
   - libblas=3.9.0
   - libbrotlicommon=1.0.9
   - libbrotlidec=1.0.9
   - libbrotlienc=1.0.9
+  - libcap=2.69
   - libcblas=3.9.0
   - libclang=15.0.7
   - libclang13=15.0.7
   - libcrc32c=1.1.2
+  - libcups=2.3.3
   - libcurl=8.1.2
   - libdeflate=1.18
   - libedit=3.1.20191231
@@ -203,9 +247,13 @@ dependencies:
   - libexpat=2.5.0
   - libffi=3.4.2
   - libflac=1.4.3
+  - libgcc-ng=13.1.0
   - libgcrypt=1.10.1
   - libgdal=3.7.0
+  - libgfortran-ng=13.1.0
+  - libgfortran5=13.1.0
   - libglib=2.76.3
+  - libgomp=13.1.0
   - libgoogle-cloud=2.12.0
   - libgpg-error=1.47
   - libgrpc=1.54.2
@@ -213,14 +261,18 @@ dependencies:
   - libjpeg-turbo=2.1.5.1
   - libkml=1.3.0
   - liblapack=3.9.0
+  - libllvm14=14.0.6
   - libllvm15=15.0.7
   - libnetcdf=4.9.2
   - libnghttp2=1.52.0
+  - libnsl=2.0.0
+  - libnuma=2.0.16
   - libogg=1.3.4
   - libopenblas=0.3.23
   - libopus=1.3.1
   - libpng=1.6.39
   - libpq=15.3
+  - libprotobuf=3.21.12
   - librttopo=1.1.0
   - libsndfile=1.2.0
   - libsodium=1.0.18
@@ -228,6 +280,8 @@ dependencies:
   - libspatialite=5.0.1
   - libsqlite=3.42.0
   - libssh2=1.11.0
+  - libstdcxx-ng=13.1.0
+  - libsystemd0=254
   - libthrift=0.18.1
   - libtiff=4.5.1
   - libutf8proc=2.8.0
@@ -236,9 +290,13 @@ dependencies:
   - libvorbis=1.3.7
   - libwebp-base=1.3.1
   - libxcb=1.15
+  - libxkbcommon=1.5.0
   - libxml2=2.11.4
   - libzip=1.9.2
   - libzlib=1.2.13
+  - libzopfli=1.0.3
+  - linkify-it-py=2.0.0
+  - llvmlite=0.40.1
   - locket=1.0.0
   - lockfile=0.12.2
   - lz4=4.3.2
@@ -246,11 +304,13 @@ dependencies:
   - lzo=2.10
   - mako=1.2.4
   - mapclassify=2.5.0
+  - markdown=3.4.4
   - markdown-it-py=3.0.0
   - markupsafe=2.1.3
   - matplotlib=3.7.1
   - matplotlib-base=3.7.1
   - matplotlib-inline=0.1.6
+  - mdit-py-plugins=0.4.0
   - mdurl=0.1.0
   - mercantile=1.2.1
   - metpy=1.5.0
@@ -260,6 +320,7 @@ dependencies:
   - mpg123=1.31.3
   - msgpack-python=1.0.5
   - multidict=6.0.4
+  - multipledispatch=0.6.0
   - munch=3.0.0
   - munkres=1.1.4
   - mypy_extensions=1.0.0
@@ -283,17 +344,21 @@ dependencies:
   - notebook-shim=0.2.3
   - nspr=4.35
   - nss=3.89
+  - numba=0.57.1
   - numexpr=2.8.4
-  - numpy=1.25.0
+  - numpy=1.24.4
   - oauthlib=3.2.2
   - openjpeg=2.5.0
-  - openssl=3.1.1
+  - openssl=3.1.2
+  - orc=1.8.4
   - overrides=7.3.1
   - packaging=23.1
   - pamela=1.0.0
   - pandas=2.0.3
   - pandoc=3.1.3
   - pandocfilters=1.5.0
+  - panel=1.2.1
+  - param=1.13.0
   - parso=0.8.3
   - partd=1.4.0
   - pastel=0.2.1
@@ -323,11 +388,15 @@ dependencies:
   - psutil=5.9.5
   - pthread-stubs=0.4
   - ptyprocess=0.7.0
+  - pulseaudio-client=16.1
   - pure_eval=0.2.2
+  - pyarrow=12.0.1
   - pyasn1=0.4.8
   - pyasn1-modules=0.2.7
   - pycodestyle=2.10.0
   - pycparser=2.21
+  - pyct=0.4.6
+  - pyct-core=0.4.6
   - pycurl=7.45.1
   - pydantic=1.10.9
   - pygments=2.15.1
@@ -351,13 +420,15 @@ dependencies:
   - python_abi=3.11
   - pytz=2023.3
   - pyu2f=0.1.5
+  - pyviz_comms=3.0.0
+  - pywavelets=1.4.1
   - pyyaml=6.0
   - pyzmq=25.1.0
   - qt-main=5.15.8
   - rasterio=1.3.7
+  - rdma-core=28.9
   - re2=2023.03.02
   - readline=8.2
-  - requests=2.31.0
   - requests-oauthlib=1.3.1
   - rfc3339-validator=0.1.4
   - rfc3986-validator=0.1.1
@@ -372,12 +443,13 @@ dependencies:
   - ruff=0.0.275
   - s2n=1.3.45
   - s3fs=2023.6.0
+  - scikit-image=0.21.0
   - scikit-learn=1.2.2
   - scipy=1.11.1
   - seaborn=0.12.2
   - seaborn-base=0.12.2
+  - secretstorage=3.3.3
   - send2trash=1.8.2
-  - setuptools=68.0.0
   - shapely=2.0.1
   - sip=6.7.9
   - six=1.16.0
@@ -395,6 +467,7 @@ dependencies:
   - tblib=1.7.0
   - terminado=0.17.1
   - threadpoolctl=3.1.0
+  - tifffile=2023.8.12
   - tiledb=2.13.2
   - tinycss2=1.2.1
   - tk=8.6.12
@@ -410,19 +483,29 @@ dependencies:
   - typing_utils=0.1.0
   - tzcode=2023c
   - tzdata=2023c
+  - uc-micro-py=1.0.1
+  - ucx=1.14.1
   - ukkonen=1.0.1
+  - uri-template=1.3.0
   - uritemplate=4.1.1
   - urllib3=1.26.15
   - virtualenv=20.23.1
   - watchdog=3.0.0
   - wcwidth=0.2.6
+  - webcolors=1.13
   - webencodings=0.5.1
   - websocket-client=1.6.1
   - wheel=0.40.0
   - widgetsnbextension=4.0.7
   - wrapt=1.15.0
   - xarray=2023.6.0
+  - xcb-util=0.4.0
+  - xcb-util-image=0.4.0
+  - xcb-util-keysyms=0.4.0
+  - xcb-util-renderutil=0.3.9
+  - xcb-util-wm=0.4.1
   - xerces-c=3.2.4
+  - xkeyboard-config=2.39
   - xorg-kbproto=1.0.7
   - xorg-libice=1.1.1
   - xorg-libsm=1.2.4
@@ -440,9 +523,48 @@ dependencies:
   - yaml=0.2.5
   - yarl=1.9.2
   - zeromq=4.3.4
+  - zfp=1.0.0
   - zict=3.0.0
   - zipp=3.15.0
   - zlib=1.2.13
+  - zlib-ng=2.0.7
   - zstd=1.5.2
   - pip:
+      - absl-py==1.4.0
+      - addict==2.4.0
+      - aliyun-python-sdk-core==2.13.36
+      - aliyun-python-sdk-kms==2.16.1
+      - cmake==3.25.0
+      - crcmod==1.7
+      - einops==0.6.1
+      - jmespath==0.10.0
       - jupyterlab-code-formatter==2.2.1
+      - lit==15.0.7
+      - mmcls==0.25.0
+      - mmcv-full==1.7.1
+      - mmsegmentation==0.30.0
+      - model-index==0.1.11
+      - mpmath==1.2.1
+      - opencv-python==4.8.0.76
+      - opendatalab==0.0.10
+      - openmim==0.3.9
+      - openxlab==0.0.21
+      - ordered-set==4.1.0
+      - oss2==2.17.0
+      - prettytable==3.8.0
+      - pycryptodome==3.18.0
+      - requests==2.28.2
+      - setuptools==60.2.0
+      - sympy==1.11.1
+      - tabulate==0.9.0
+      - tensorboard==2.14.0
+      - tensorboard-data-server==0.7.1
+      - timm==0.4.12
+      - torch==2.0.0+cu117
+      - torchaudio==2.0.1+cu117
+      - torchvision==0.15.1+cu117
+      - tqdm==4.65.2
+      - triton==2.0.0
+      - werkzeug==2.3.7
+      - yapf==0.40.1
+prefix: /home/iker/mambaforge/envs/hls_data_project

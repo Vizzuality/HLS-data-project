@@ -93,3 +93,6 @@ target/
 .tox
 
 .ruff_cache
+
+# Checkpoints
+*.pth
