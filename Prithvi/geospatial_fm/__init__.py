@@ -3,9 +3,11 @@ from .geospatial_pipelines import (
     TorchRandomCrop,
     LoadGeospatialAnnotations,
     LoadGeospatialImageFromFile,
+    LoadGeospatialImageFromArray,
     Reshape,
     CastTensor,
     CollectTestList,
+    CollectTestListArray,
     TorchPermute
 )
 from .datasets import GeospatialDataset
@@ -17,11 +19,13 @@ __all__ = [
     "ConvTransformerTokensToEmbeddingNeck",
     "LoadGeospatialAnnotations",
     "LoadGeospatialImageFromFile",
+    "LoadGeospatialImageFromArray",
     "TorchRandomCrop",
     "TemporalEncoderDecoder",
     "Reshape",
     "CastTensor",
     "CollectTestList",
+    "CollectTestListArray",
     "GeospatialNeck",
     "TorchPermute"
 ]

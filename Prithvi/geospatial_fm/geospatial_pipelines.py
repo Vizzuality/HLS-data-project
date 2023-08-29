@@ -222,9 +222,52 @@ class CollectTestList(object):
         return data
 
     def __repr__(self):
-        return (
-            self.__class__.__name__ + f"(keys={self.keys}, meta_keys={self.meta_keys})"
-        )
+        return self.__class__.__name__ + f"(keys={self.keys}, meta_keys={self.meta_keys})"
+
+
+@PIPELINES.register_module()
+class CollectTestListArray(object):
+    """
+
+    It processes the data in a way that conforms with inference and test pipelines.
+
+    Args:
+
+        keys (list): keys to collect (eg img/gt_semantic_seg)
+        meta_keys (list): additional meta to collect and add to img_metas
+
+    """
+
+    def __init__(
+        self,
+        keys,
+        meta_keys=(
+            "ori_shape",
+            "img_shape",
+            "pad_shape",
+            "scale_factor",
+            "flip",
+            "flip_direction",
+            "img_norm_cfg",
+        ),
+    ):
+        self.keys = keys
+        self.meta_keys = meta_keys
+
+    def __call__(self, results):
+        data = {}
+        img_meta = {}
+
+        for key in self.meta_keys:
+            img_meta[key] = results[key]
+        img_meta = [img_meta]
+        data["img_metas"] = DC(img_meta, cpu_only=True)
+        for key in self.keys:
+            data[key] = [results[key]]
+        return data
+
+    def __repr__(self):
+        return self.__class__.__name__ + f"(keys={self.keys}, meta_keys={self.meta_keys})"
 
 
 @PIPELINES.register_module()
@@ -268,9 +311,7 @@ class LoadGeospatialImageFromFile(object):
             If False, will transpose to channels last format. Defaults to True.
     """
 
-    def __init__(
-        self, to_float32=False, nodata=None, nodata_replace=0.0, channels_last=True
-    ):
+    def __init__(self, to_float32=False, nodata=None, nodata_replace=0.0, channels_last=True):
         self.to_float32 = to_float32
         self.nodata = nodata
         self.nodata_replace = nodata_replace
@@ -295,6 +336,61 @@ class LoadGeospatialImageFromFile(object):
         results["filename"] = filename
         results["ori_filename"] = results["img_info"]["filename"]
         results["img"] = img
+        results["img_shape"] = img.shape
+        results["ori_shape"] = img.shape
+        # Set initial values for default meta_keys
+        results["pad_shape"] = img.shape
+        results["scale_factor"] = 1.0
+        results["flip"] = False
+        num_channels = 1 if len(img.shape) < 3 else img.shape[2]
+        results["img_norm_cfg"] = dict(
+            mean=np.zeros(num_channels, dtype=np.float32),
+            std=np.ones(num_channels, dtype=np.float32),
+            to_rgb=False,
+        )
+        return results
+
+    def __repr__(self):
+        repr_str = self.__class__.__name__
+        repr_str += f"(to_float32={self.to_float32}"
+        return repr_str
+
+
+@PIPELINES.register_module()
+class LoadGeospatialImageFromArray(object):
+    """
+
+    It loads a numpy array image. Returns in channels last format, transposing if necessary according to channels_last argument.
+
+    Args:
+        to_float32 (bool): Whether to convert the loaded image to a float32
+            numpy array. If set to False, the loaded image is an uint8 array.
+            Defaults to False.
+        nodata (float/int): no data value to substitute to nodata_replace
+        nodata_replace (float/int): value to use to replace no data
+        channels_last (bool): whether the file has channels last format.
+            If False, will transpose to channels last format. Defaults to True.
+    """
+
+    def __init__(self, to_float32=False, nodata=None, nodata_replace=0.0, channels_last=True):
+        self.to_float32 = to_float32
+        self.nodata = nodata
+        self.nodata_replace = nodata_replace
+        self.channels_last = channels_last
+
+    def __call__(self, results):
+        img = results["img_info"]["array"]
+
+        if not self.channels_last:
+            img = np.transpose(img, (1, 2, 0))
+
+        if self.to_float32:
+            img = img.astype(np.float32)
+
+        if self.nodata is not None:
+            img = np.where(img == self.nodata, self.nodata_replace, img)
+
+        results["img"] = results["img_info"]["array"]
         results["img_shape"] = img.shape
         results["ori_shape"] = img.shape
         # Set initial values for default meta_keys
