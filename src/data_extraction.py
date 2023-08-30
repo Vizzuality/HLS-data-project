@@ -99,7 +99,7 @@ class COGExtractor:
         return band_data
     
     @staticmethod
-    def model_innput_array(self, band_data):
+    def get_input_array(band_data):
         band_list = ['blue', 'green', 'red', 'nir', 'swir_1', 'swir_2']
         return np.stack(tuple([band_data[band] for band in band_list]), axis=-1)
 

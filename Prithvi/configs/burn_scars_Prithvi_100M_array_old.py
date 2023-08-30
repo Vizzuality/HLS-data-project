@@ -42,6 +42,8 @@ bands = [0, 1, 2, 3, 4, 5]
 tile_size = 224
 orig_nsize = 512
 crop_size = (224, 224)
+img_suffix = '_merged.tif'
+seg_map_suffix = '.mask.tif'
 ignore_index = -1
 image_nodata = -9999
 image_nodata_replace = 0
@@ -60,6 +62,48 @@ max_intervals = 10000
 evaluation_interval = 1000
 
 # TO BE DEFINED BY USER: model path
+experiment = "burn_scars_Prithvi_100M"
+project_dir = "hls-fundation-os"
+work_dir = os.path.join(project_dir, experiment)
+save_path = work_dir
+
+save_path = work_dir
+train_pipeline = [
+    dict(
+        type="LoadGeospatialImageFromArray",
+        to_float32=image_to_float32,
+        channels_last=True
+    ),
+    dict(type="LoadGeospatialAnnotations", reduce_zero_label=False),
+    dict(type="BandsExtract", bands=bands),
+    dict(type="RandomFlip", prob=0.5),
+    dict(type="ToTensor", keys=["img", "gt_semantic_seg"]),
+    # to channels first
+    dict(type="TorchPermute", keys=["img"], order=(2, 0, 1)),
+    dict(type="TorchNormalize", **img_norm_cfg),
+    dict(type="TorchRandomCrop", crop_size=(tile_size, tile_size)),
+    dict(
+        type="Reshape",
+        keys=["img"],
+        new_shape=(
+            len(bands),
+            num_frames,
+            tile_size,
+            tile_size
+        )
+    ),
+    dict(
+        type="Reshape",
+        keys=["gt_semantic_seg"],
+        new_shape=(1, tile_size, tile_size)
+    ),
+    dict(
+        type="CastTensor",
+        keys=["gt_semantic_seg"],
+        new_type="torch.LongTensor"
+    ),
+    dict(type="Collect", keys=["img", "gt_semantic_seg"])
+]
 test_pipeline = [
     dict(
         type="LoadGeospatialImageFromArray",
@@ -83,7 +127,18 @@ test_pipeline = [
     dict(
         type="CollectTestListArray",
         keys=["img"],
-        meta_keys=[]
+        meta_keys=[
+            "img_info",
+            "seg_fields",
+            "img_prefix",
+            "seg_prefix",
+            "img",
+            "img_shape",
+            "ori_shape",
+            "pad_shape",
+            "scale_factor",
+            "img_norm_cfg"
+        ]
     )
 ]
 
@@ -92,12 +147,24 @@ CLASSES = ("Unburnt land", "Burn scar")
 data = dict(
     samples_per_gpu=samples_per_gpu,
     workers_per_gpu=num_workers,
+    train=dict(
+        type=dataset_type,
+        CLASSES=CLASSES,
+        data_root=data_root,
+        img_dir="training",
+        ann_dir="training",
+        img_suffix=img_suffix,
+        seg_map_suffix=seg_map_suffix,
+        pipeline=train_pipeline,
+        ignore_index=-1),
     val=dict(
         type=dataset_type,
         CLASSES=CLASSES,
         data_root=data_root,
         img_dir="validation",
         ann_dir="validation",
+        img_suffix=img_suffix,
+        seg_map_suffix=seg_map_suffix,
         pipeline=test_pipeline,
         ignore_index=-1),
     test=dict(
@@ -106,6 +173,8 @@ data = dict(
         data_root=data_root,
         img_dir="validation",
         ann_dir="validation",
+        img_suffix=img_suffix,
+        seg_map_suffix=seg_map_suffix,
         pipeline=test_pipeline,
         ignore_index=-1
     )
@@ -131,7 +200,8 @@ log_config = dict(
 )
 checkpoint_config = dict(
     by_epoch=True,
-    interval=10
+    interval=10,
+    out_dir=save_path 
 )
 evaluation = dict(
     interval=evaluation_interval,
