@@ -2,6 +2,13 @@ import requests
 
 import matplotlib.pyplot as plt
 from skimage import io
+import ee
+import urllib.request
+from PIL import Image
+import numpy as np
+
+from data_params import GEEData
+
 
 class CMRSTACCatalog:
     # Class variables
@@ -57,3 +64,98 @@ class CMRSTACCatalog:
         
         plt.tight_layout()
         plt.show()
+
+
+class GEECatalog:
+    # Class variables
+    intruments = ['Sentinel_2', 'Landsat_8', 'Landsat_9']
+    
+    def __init__(self):
+        ee.Initialize()
+
+    def _add_date(self, image):
+        """Function to add date property to an image"""
+        return image.addBands(ee.Image.constant(ee.Date(image.get('system:time_start')).millis()).rename('date'))
+    
+    def search_images(self, geometry, start_date, end_date):
+        # Define the region of interest (ROI) as a polygon
+        roi = ee.Geometry.Polygon(geometry['features'][0]['geometry']['coordinates'])
+
+        # Get images
+        images = {}
+        for intrument in self.intruments:
+            gee_data = GEEData(intrument)
+            
+            # Get collection
+            collection = ee.ImageCollection(gee_data.collection_id)\
+            .filterDate(start_date, end_date)\
+            .filterBounds(roi)
+
+            # Map the function over the collection
+            collection = collection.map(self._add_date)
+
+            # Get the list of images
+            image_list = collection.toList(collection.size())
+
+            # Iterate through the image list and create a dictionary of images
+            date_images = {}
+            for i in range(collection.size().getInfo()):
+                image = ee.Image(image_list.get(i))
+                date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd').getInfo()
+
+                date_images[date] = image
+
+            images[intrument] = date_images
+
+        # Reorder images 
+        images_dict = {}
+
+        # Iterate through the original dictionary
+        for instrument, date_image_dict in images.items():
+            for date, image in date_image_dict.items():
+                if date not in images_dict:
+                    images_dict[date] = {}
+                images_dict[date][instrument] = image
+
+
+        # Sort the images by date
+        images_dict = dict(sorted(images_dict.items()))
+
+        return images_dict
+    
+    @staticmethod
+    def display_thumbnails(images_dict):
+        num_items = len(images_dict)
+        max_images_per_row = 4
+        num_rows = (num_items + max_images_per_row - 1) // max_images_per_row
+        num_cols = min(num_items, max_images_per_row)
+
+        fig, ax = plt.subplots(num_rows, num_cols, figsize=(num_cols * 4, num_rows * 4))
+        ax = ax.ravel()  # Flatten the 2D array of axes
+
+        for i, (date, image_dict) in enumerate(images_dict.items()):
+            instrument, image = list(image_dict.items())[0]
+            gea_data = GEEData(instrument)
+
+            # Get the thumbnail URL
+            thumbnail_url = image.visualize(**gea_data.swir_vis).getThumbURL({
+                'dimensions': 500, 
+                'format': 'png'     
+            })
+
+            # Open the URL and read the image using PIL
+            with urllib.request.urlopen(thumbnail_url) as response:
+                thumbnail =  np.array(Image.open(response))
+
+            # display image
+            ax[i].imshow(thumbnail)
+            ax[i].set_title(f"{instrument}: {date}")
+            ax[i].axis('off')
+
+        # Remove any remaining empty subplots
+        for j in range(len(images_dict), num_rows * num_cols):
+            fig.delaxes(ax[j])
+        
+        plt.tight_layout()
+        plt.show()
+
