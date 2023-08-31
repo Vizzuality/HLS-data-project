@@ -78,20 +78,20 @@ class COGExtractor:
         for band_name, band_link in band_links.items():
             band_metadata[band_name] = rio.open(band_link)
 
-
         # Extract the data for the ROI and clip to that bbox
         band_data = {}
         bands_crs = band_metadata[bands[0]].crs
         for band_name, data in band_metadata.items():
-            band_data[band_name], _transform = rio.mask.mask(data, [self.polygon_utm(bands_crs)], crop=True)
-
-        # Grab scale factor from metadata and apply to each band
-        for band_name, data in band_data.items():
-            band_data[band_name] = band_data[band_name][0] * band_metadata[band_name].scales[0]
+            data, _transform = rio.mask.mask(data, [self.polygon_utm(bands_crs)], crop=True)
+            band_data[band_name] = data.astype(float)
 
         # Set all nodata values to nan
         for band_name, data in band_data.items():
             band_data[band_name][band_data[band_name] == band_metadata[band_name].nodata] = np.nan
+
+        # Grab scale factor from metadata and apply to each band
+        for band_name, data in band_data.items():
+            band_data[band_name] = band_data[band_name][0] * band_metadata[band_name].scales[0]
 
         # Rename bands
         band_data = {band_names[key]: value for key, value in band_data.items()}
