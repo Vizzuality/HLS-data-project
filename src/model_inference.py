@@ -1,10 +1,15 @@
+import os
+import subprocess
+
 import torch
 import numpy as np
+from PIL import Image
 import matplotlib.pyplot as plt
 from mmcv import Config
 from mmcv.parallel import collate, scatter
 from mmseg.apis import init_segmentor
 from mmseg.datasets.pipelines import Compose
+
 
 
 class ModelProcessor:
@@ -77,7 +82,8 @@ class ModelProcessor:
         self.mask = result[0]
         return self.mask
     
-    def display_io(self, array):
+    @staticmethod
+    def display_io(array, mask):
         rgb_image = np.stack((array[:, :, 5], array[:, :, 3], array[:, :, 2]), axis=-1)
 
         fig, ax = plt.subplots(1, 2, figsize=(16, 8))
@@ -86,8 +92,100 @@ class ModelProcessor:
         ax[0].set_title("Input color composite (SWIR 2, Narrow NIR, Red)")
         ax[0].axis('off')
 
-        ax[1].imshow(self.mask, cmap='gray')
+        ax[1].imshow(mask, cmap='gray')
         ax[1].set_title("Model prediction (Black: No burn scar; White: Burn scar)")
         ax[1].axis('off')
-    
+
+    @staticmethod
+    def save_io_as_png(array, mask, folder_path, region_name):
+        region_dir = os.path.join(folder_path, region_name)
+
+        # Check if the folder exists
+        if not os.path.exists(region_dir):
+            # If the folder doesn't exist, create it
+            os.makedirs(region_dir)
+            print(f"Folder '{region_dir}' created.")
+        else:
+            print(f"Folder '{region_dir}' already exists.")
+
+        # Save composite
+        # Select bands
+        rgb_image = array[..., [5, 3, 2]]
+
+        # Saturate image
+        rgb_image = rgb_image*2
+        rgb_image = np.clip(rgb_image, 0, 1)
+
+        # Scale the values to the range [0, 255]
+        rgb_image = (rgb_image * 255).astype(np.uint8)
+
+        # Convert the NumPy array to a PIL Image
+        image = Image.fromarray(rgb_image)
+
+        # Save the image as a PNG file 
+        image.save(os.path.join(region_dir, f"{region_name}_001.png"))
+
+        # Save mask
+        # Create a copy of the RGB array to preserve the original data
+        rgb_mask = np.copy(rgb_image)
+
+        # Set RGB values to white where the mask is equal to 1
+        mask_array = mask[..., np.newaxis]  # Add a new axis to match the RGB shape
+        mask_array = np.repeat(mask_array, 3, axis=-1)  # Repeat the mask along the new axis to match RGB shape
+
+        # Make the mask oixels white
+        rgb_mask[mask_array == 1] = 255
+
+        # Convert the NumPy array to a PIL Image for saving
+        image = Image.fromarray(rgb_mask)
+
+        # Save the image as a PNG file 
+        image.save(os.path.join(region_dir, f"{region_name}_002.png"))
+
+
+    @staticmethod
+    def create_animation(folder_path, region_name, output_format = 'mp4'):
+        region_dir = os.path.join(folder_path, region_name)
+
+        if output_format == 'mp4':
+            cmd = f"ffmpeg -framerate 1 -stream_loop 5 -i {region_dir}/{region_name}_%03d.png -c:v libx264 -crf 0 -y {region_dir}/{region_name}.mp4"
+            print(f"Processing: {cmd}")
+            r = subprocess.call(cmd, shell=True)
+            if r == 0:
+                print("Task created")
+            else:
+                print("Task failed")
+            print("Finished processing")
+        if output_format == 'apng':
+            cmd = f"ffmpeg -framerate 3 -i {region_dir}/{region_name}_%03d.png -plays 0 -y {region_dir}/{region_name}.apng"
+            print(f"Processing: {cmd}")
+            r = subprocess.call(cmd, shell=True)
+            if r == 0:
+                print("Task created")
+            else:
+                print("Task failed")
+            print("Finished processing")
+        if output_format == 'gif':
+            cmd = f"ffmpeg -framerate 1 -i {region_dir}/{region_name}_%03d.png -y {region_dir}/{region_name}.gif"
+            print(f"Processing: {cmd}")
+            r = subprocess.call(cmd, shell=True)
+            if r == 0:
+                print("Task created")
+            else:
+                print("Task failed")
+            print("Finished processing")
+        if output_format == 'webm':
+            cmd = f"ffmpeg -framerate 1 -f image2 -i {region_dir}/{region_name}_%03d.png -c:v libvpx-vp9 -pix_fmt yuva420p -y {region_dir}/{region_name}.webm"
+            print(f"Processing: {cmd}")
+            r = subprocess.call(cmd, shell=True)
+            if r == 0:
+                print("Task created")
+            else:
+                print("Task failed")
+            print("Finished processing")
+
+
+
+        
+            
 
