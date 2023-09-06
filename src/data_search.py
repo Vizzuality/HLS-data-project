@@ -68,28 +68,33 @@ class CMRSTACCatalog:
 
 class GEECatalog:
     # Class variables
-    intruments = ['Sentinel_2', 'Landsat_8', 'Landsat_9']
+    instruments = ['Sentinel_2', 'Landsat_8', 'Landsat_9']
     
     def __init__(self):
         ee.Initialize()
 
+    #def _add_date(self, image):
+    #    """Function to add date property to an image"""
+    #    return image.addBands(ee.Image.constant(ee.Date(image.get('system:time_start')).millis()).rename('date'))
+    
     def _add_date(self, image):
-        """Function to add date property to an image"""
-        return image.addBands(ee.Image.constant(ee.Date(image.get('system:time_start')).millis()).rename('date'))
+        """Function to add date property to an image in 'YYYY-MM-dd' format"""
+        date_format = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
+        return image.set('date', date_format)
     
     def search_images(self, geometry, start_date, end_date):
         # Define the region of interest (ROI) as a polygon
-        roi = ee.Geometry.Polygon(geometry['features'][0]['geometry']['coordinates'])
+        self.roi = ee.Geometry.Polygon(geometry['features'][0]['geometry']['coordinates'])
 
         # Get images
         images = {}
-        for intrument in self.intruments:
-            gee_data = GEEData(intrument)
+        for instrument in self.instruments:
+            gee_data = GEEData(instrument)
             
             # Get collection
             collection = ee.ImageCollection(gee_data.collection_id)\
             .filterDate(start_date, end_date)\
-            .filterBounds(roi)
+            .filterBounds(self.roi)
 
             # Map the function over the collection
             collection = collection.map(self._add_date)
@@ -97,15 +102,27 @@ class GEECatalog:
             # Get the list of images
             image_list = collection.toList(collection.size())
 
-            # Iterate through the image list and create a dictionary of images
             date_images = {}
+            pre_date = ''
             for i in range(collection.size().getInfo()):
                 image = ee.Image(image_list.get(i))
                 date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd').getInfo()
+                if date == pre_date:
+                    images_list.append(image)
+                    # Create an image collection from the list of images
+                    image_collection = ee.ImageCollection.fromImages(images_list)
+                    # Create a composite image from the image collection using mosaic
+                    composite_image = image_collection.mosaic()
+                    # Add composite image to dict
+                    date_images[date] = composite_image
+                else: 
+                    # Add image to dict
+                    date_images[date] = image
 
-                date_images[date] = image
+                    images_list = [image]
+                    pre_date = date
 
-            images[intrument] = date_images
+            images[instrument] = date_images
 
         # Reorder images 
         images_dict = {}
@@ -123,8 +140,7 @@ class GEECatalog:
 
         return images_dict
     
-    @staticmethod
-    def display_thumbnails(images_dict):
+    def display_thumbnails(self, images_dict):
         num_items = len(images_dict)
         max_images_per_row = 4
         num_rows = (num_items + max_images_per_row - 1) // max_images_per_row
@@ -135,12 +151,14 @@ class GEECatalog:
 
         for i, (date, image_dict) in enumerate(images_dict.items()):
             instrument, image = list(image_dict.items())[0]
-            gea_data = GEEData(instrument)
+            gee_data = GEEData(instrument)
 
             # Get the thumbnail URL
-            thumbnail_url = image.visualize(**gea_data.swir_vis).getThumbURL({
+            thumbnail_url = image.visualize(**gee_data.swir_vis).getThumbURL({
                 'dimensions': 500, 
-                'format': 'png'     
+                'format': 'png',
+                'crs': 'EPSG:3857', 
+                'region':self.roi     
             })
 
             # Open the URL and read the image using PIL
