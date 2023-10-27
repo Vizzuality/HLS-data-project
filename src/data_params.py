@@ -34,3 +34,4 @@ class GEEData:
         return {'Sentinel_2': 'Sentinel-2 (ESA)',
                 'Landsat_8': 'Landsat-8 (NASA)',
                 'Landsat_9': 'Landsat-9 (NASA)'}[self.dataset]
+    

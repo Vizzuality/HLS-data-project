@@ -20,18 +20,20 @@ class CMRSTACCatalog:
     def __init__(self):
         self.session = requests.Session()
 
-    def create_search_params(self, bbox, start_date, end_date, limit):
-        datetime_range = f"{start_date}T00:00:00Z/{end_date}T23:59:59Z"
+    def create_search_params(self, bbox, start_date=None, end_date=None, 
+                             datetime=None, limit=12):
+        if datetime is None:
+            datetime = f"{start_date}T00:00:00Z/{end_date}T23:59:59Z"
 
         params = {}
         params['limit'] = limit
         params['bbox'] = bbox
-        params['datetime'] = datetime_range
+        params['datetime'] = datetime
         params["collections"] = self.collections
         return params
     
-    def search(self, bbox, start_date, end_date, limit=12):
-        params = self.create_search_params(bbox, start_date, end_date, limit)
+    def search(self, bbox, start_date=None, end_date=None, datetime=None, limit=12):
+        params = self.create_search_params(bbox, start_date, end_date, datetime, limit)
         response = self.session.post(self.search_endpoint, json=params)
         if response.status_code == 200:
             return response.json()['features']
@@ -44,24 +46,24 @@ class CMRSTACCatalog:
         max_images_per_row = 4
         num_rows = (num_items + max_images_per_row - 1) // max_images_per_row
         num_cols = min(num_items, max_images_per_row)
-        
+
         fig, ax = plt.subplots(num_rows, num_cols, figsize=(num_cols * 4, num_rows * 4))
-        ax = ax.ravel()  # Flatten the 2D array of axes
-        
+        if num_items == 1:
+            ax = [[ax]]  # Wrap the single axis in a 2D array
+
         for i, item in enumerate(items):
             image_url = item['assets']['browse']['href']
             image = io.imread(image_url)
-
             datetime = item['properties']['datetime']
-            
+
             ax[i].imshow(image)
             ax[i].set_title(datetime)
             ax[i].axis('off')
 
         # Remove any remaining empty subplots
         for j in range(len(items), num_rows * num_cols):
-            fig.delaxes(ax[j])
-        
+            fig.delaxes(ax[j // num_cols][j % num_cols])
+
         plt.tight_layout()
         plt.show()
 
