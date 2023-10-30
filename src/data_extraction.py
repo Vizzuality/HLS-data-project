@@ -63,7 +63,7 @@ class COGExtractor:
         project = pyproj.Transformer.from_proj(geo_crs, utm)  # Set up the transformation
         return transform(project.transform, self.polygon)
 
-    def get_data(self):
+    def get_data(self, normalize=False):
         band_links = {}
         # Define which HLS product is being accessed
         if self.item["collection"] == "HLSS30.v2.0":
@@ -80,7 +80,8 @@ class COGExtractor:
                 "B07",
                 "B06",
                 "B05",
-                "B04" "B03",
+                "B04",
+                "B03",
                 "B02",
             ]  # SWIR 2, SWIR 1, NIR, RED, GREEN, BLUE for L30
 
@@ -110,7 +111,10 @@ class COGExtractor:
 
         # Grab scale factor from metadata and apply to each band
         for band_name, data in band_data.items():
-            band_data[band_name] = band_data[band_name][0] * band_metadata[band_name].scales[0]
+            if normalize:
+                band_data[band_name] = band_data[band_name][0] * band_metadata[band_name].scales[0]
+            else:
+                band_data[band_name] = band_data[band_name][0]
 
         # Rename bands
         band_data = {band_names[key]: value for key, value in band_data.items()}
