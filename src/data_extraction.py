@@ -110,14 +110,18 @@ class COGExtractor:
             band_data[band_name][band_data[band_name] == band_metadata[band_name].nodata] = np.nan
 
         # Grab scale factor from metadata and apply to each band
+        self.band_scales = {}
         for band_name, data in band_data.items():
             if normalize:
                 band_data[band_name] = band_data[band_name][0] * band_metadata[band_name].scales[0]
+                self.band_scales[band_name] = 1
             else:
                 band_data[band_name] = band_data[band_name][0]
+                self.band_scales[band_name] = band_metadata[band_name].scales[0]
 
         # Rename bands
         band_data = {band_names[key]: value for key, value in band_data.items()}
+        self.band_scales = {band_names[key]: value for key, value in self.band_scales.items()}
 
         return band_data
 
@@ -126,19 +130,22 @@ class COGExtractor:
         band_list = ["blue", "green", "red", "nir", "swir_1", "swir_2"]
         return np.stack(tuple([band_data[band] for band in band_list]), axis=-1)
 
-    @staticmethod
-    def display_composites(band_data):
+    def display_composites(self, band_data):
         fig, ax = plt.subplots(1, 2, figsize=(16, 8))
 
         # Display the RGB image using the first axes
-        rgb_image = np.stack((band_data["swir_2"], band_data["nir"], band_data["red"]), axis=-1)
+        rgb_image = np.stack((band_data["swir_2"] * self.band_scales["swir_2"], 
+                              band_data["nir"] * self.band_scales["nir"], 
+                              band_data["red"] * self.band_scales["red"]), axis=-1)
 
         ax[0].imshow(rgb_image)
         ax[0].set_title("Color composite (SWIR 2, Narrow NIR, Red)")
         ax[0].axis("off")
 
         # Display another image using the second axes
-        rgb_image = np.stack((band_data["swir_1"], band_data["nir"], band_data["red"]), axis=-1)
+        rgb_image = np.stack((band_data["swir_1"] * self.band_scales["swir_1"], 
+                              band_data["nir"] * self.band_scales["nir"], 
+                              band_data["red"] * self.band_scales["red"]), axis=-1)
 
         ax[1].imshow(rgb_image)
         ax[1].set_title("Color composite (SWIR 1, Narrow NIR, Red)")
